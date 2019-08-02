@@ -13,7 +13,8 @@ services:
 
   nginx:
     container_name: springboot-nginx
-    image: nginx:1.13
+    build:
+      context: ./nginx/image/
     restart: always
     ports:
       - 8088:80
@@ -22,3 +23,13 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - app
+    command: >
+      /bin/sh -c "
+                while ! nc -z -w1 app 8080;
+                do
+                  echo waiting app;
+                  sleep 1;
+                done;
+                echo Started!;
+                exec nginx -g 'daemon off;'
+              "
